@@ -1,11 +1,24 @@
 {
   "name": "@subsetcss/parser",
   "version": "0.0.2",
+  "description": "Parse CSS and return matching config based on line number",
   "main": "dist/index.js",
   "module": "dist/subsetcss-parser.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
+  ],
+  "repository": {
+    "url": "https://github.com/subsetcss/parser"
+  },
+  "author": {
+    "name": "Ilya Radchenko"
+  },
+  "keywords": [
+    "subsetcss",
+    "parser",
+    "postcss",
+    "css"
   ],
   "scripts": {
     "start": "tsdx watch",
