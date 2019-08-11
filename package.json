@@ -1,6 +1,6 @@
 {
   "name": "@subsetcss/parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.js",
   "module": "dist/subsetcss-parser.esm.js",
   "typings": "dist/index.d.ts",
