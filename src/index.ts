@@ -6,6 +6,8 @@ export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber
   let parsed = postcss.parse(css);
 
   let result: ParserResult = await new Promise((resolve) => {
+    let found = false;
+  
     parsed.walkRules((node) => {
       if (!node.source) {
         return;
@@ -23,10 +25,12 @@ export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber
           if (!decl.source || !decl.source.start || decl.source.start.line !== lineNumber + 1) {
             return;
           }
+
           let rootConfig = getSubsetConfig(subsetConfig, decl);
           let config = rootConfig ? rootConfig.subsets[decl.prop] : [];
 
           if (config) {
+            found = true;
             resolve({
               config,
               decl
@@ -34,17 +38,21 @@ export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber
           }
         });
       }
+    });
+
+    if (!found) {
       resolve({
         config: []
       });
-    });
+    }
   });
 
   return result;
 }
 
 function getSubsetConfig(subsetConfig: SubsetConfig, decl: postcss.Declaration) {
-	let grandParent = decl.parent.parent;
+  let grandParent = decl.parent.parent;
+   console.log(decl.parent.parent)
 	if (!grandParent || grandParent.type !== 'atrule') {
 		return subsetConfig;
 	}
