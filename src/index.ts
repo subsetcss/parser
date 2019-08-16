@@ -2,6 +2,20 @@ import postcss from 'postcss';
 import valueParser from 'postcss-value-parser';
 
 
+const shorthandMap: ShorthandMap = {
+  'border': ['border-width', 'border-style', 'border-color'],
+  'margin': ['margin-top', 'margin-right', 'margin-bottom', 'margin-left'],
+  'padding': ['padding-top', 'padding-right', 'padding-bottom', 'padding-left'],
+  'background': []
+};
+const shorthandKeys = Object.keys(shorthandMap);
+const findShorthand = (prop: string) => {
+  return shorthandKeys.find(key => {
+    let longHands = shorthandMap[key];
+    return longHands && longHands.includes(prop);
+  });
+}
+
 export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber: number): Promise<ParserResult> {
   let parsed = postcss.parse(css);
 
@@ -29,6 +43,28 @@ export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber
           let rootConfig = getSubsetConfig(subsetConfig, decl);
           let config = rootConfig ? rootConfig.subsets[decl.prop] : [];
 
+          if (!config || !config.length) {
+            config = config || [];
+            let alternates = shorthandMap[decl.prop];
+        
+            if (alternates) {
+              alternates.forEach((alt) => {
+                let altConfig = rootConfig ? rootConfig.subsets[alt] : undefined;
+
+                if (altConfig) {
+                  config = [...config, ...altConfig];
+                }
+              });
+            } else {
+              let shorthand = findShorthand(decl.prop);
+              let shorthandConfig = rootConfig && shorthand ? rootConfig.subsets[shorthand] : undefined;
+
+              if (shorthandConfig) {
+                config = [...config, ...shorthandConfig];
+              }
+            }
+          }
+
           if (config) {
             found = true;
             resolve({
@@ -52,7 +88,6 @@ export async function parser(subsetConfig: SubsetConfig, css: string, lineNumber
 
 function getSubsetConfig(subsetConfig: SubsetConfig, decl: postcss.Declaration) {
   let grandParent = decl.parent.parent;
-   console.log(decl.parent.parent)
 	if (!grandParent || grandParent.type !== 'atrule') {
 		return subsetConfig;
 	}
@@ -66,7 +101,7 @@ function getSubsetConfig(subsetConfig: SubsetConfig, decl: postcss.Declaration) 
 	let { nodes } = valueParser(grandParent.params);
         
 	if (nodes.length) {
-		let words: string[] = [];
+    let words: string[] = [];
 		nodes[0].nodes.forEach((node: ValueParserNode) => {
 			if (node.type === 'word') {
 				words.push(node.value);
@@ -112,4 +147,8 @@ export interface AtMediaConfig {
 interface ValueParserNode {
   type: string;
   value: string;
+}
+
+interface ShorthandMap {
+  [type: string]: string[]
 }
