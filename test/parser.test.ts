@@ -54,12 +54,16 @@ describe('parser', () => {
       subsets: {
         'margin-right': [
           '1em'
+        ],
+        'margin-left': [
+          '0.5rem'
         ]
       }
     }, css, 2);
     
     expect(result.config).toEqual([
-      '1em'
+      '1em',
+      '0.5rem'
     ]);
   });
 
