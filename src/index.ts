@@ -108,6 +108,7 @@ export function getSubsetConfig(
     return subsetConfig;
   }
   let inAtRule = grandParent && grandParent.type === 'atrule';
+
   let rootConfig =
     grandParent && inAtRule
       ? subsetConfig[`@${grandParent.name}`]
@@ -120,8 +121,24 @@ export function getSubsetConfig(
   let { nodes } = valueParser(grandParent.params);
 
   if (nodes.length) {
+    let typeNode = nodes.find((node: ValueParserNode) => node.type === 'word');
+    let type = typeNode && typeNode.value;
+    let filteredConfigs: AtMediaConfig[] = [];
+
+    if (type) {
+      filteredConfigs = rootConfig.filter(
+        conf => conf.type && conf.type === type
+      );
+    }
+
     let words: string[] = [];
-    nodes[0].nodes.forEach((node: ValueParserNode) => {
+    let func = nodes.find((node: ValueParserNode) => node.type === 'function');
+
+    if (!func) {
+      return filteredConfigs.length ? filteredConfigs[0] : subsetConfig;
+    }
+
+    func.nodes.forEach((node: ValueParserNode) => {
       if (node.type === 'word') {
         words.push(node.value);
       }
@@ -130,15 +147,19 @@ export function getSubsetConfig(
     if (words.length === 2) {
       let [prop, value] = words;
 
-      let config = rootConfig.find(conf => {
-        let param = conf.params[prop];
+      let config = filteredConfigs.find(conf => {
+        let param = conf.params && conf.params[prop];
 
         return param && param.includes(value);
       });
 
       return config || subsetConfig;
     }
+
+    return filteredConfigs.length ? filteredConfigs[0] : subsetConfig;
   }
+
+  return subsetConfig;
 }
 
 export interface ParserResult {
@@ -157,8 +178,9 @@ export interface Subsets {
 }
 
 export interface AtMediaConfig {
+  type?: string;
   params?: {
-    'max-width'?: string[];
+    [key: string]: string[];
   };
   subsets: Subsets;
 }
