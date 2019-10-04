@@ -99,7 +99,7 @@ export async function parser(
   return result;
 }
 
-function getSubsetConfig(
+export function getSubsetConfig(
   subsetConfig: SubsetConfig,
   decl: postcss.Declaration
 ) {
