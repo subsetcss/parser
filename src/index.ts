@@ -123,7 +123,7 @@ export function getSubsetConfig(
   if (nodes.length) {
     let typeNode = nodes.find((node: ValueParserNode) => node.type === 'word');
     let type = typeNode && typeNode.value;
-    let filteredConfigs: AtMediaConfig[] = [];
+    let filteredConfigs: AtMediaConfig[] = rootConfig;
 
     if (type) {
       filteredConfigs = rootConfig.filter(
@@ -146,10 +146,8 @@ export function getSubsetConfig(
 
     if (words.length === 2) {
       let [prop, value] = words;
-
       let config = filteredConfigs.find(conf => {
         let param = conf.params && conf.params[prop];
-
         return param && param.includes(value);
       });
 
