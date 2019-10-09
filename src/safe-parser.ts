@@ -3,6 +3,8 @@ import Comment from 'postcss/lib/comment';
 import Parser from 'postcss/lib/parser';
 import { AtRule, Input, Root } from 'postcss';
 
+// Mostly copied from https://github.com/postcss/postcss-safe-parser
+// with TS added on after
 export default class SafeParser extends Parser {
   spaces: string | null = null;
   tokenizer!: Tokenizer;
