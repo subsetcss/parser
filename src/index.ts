@@ -1,6 +1,6 @@
 import postcss from 'postcss';
-import safeParser from 'postcss-safe-parser';
 import valueParser from 'postcss-value-parser';
+import safeParser from './safe-parse';
 
 const shorthandMap: ShorthandMap = {
   border: ['border-width', 'border-style', 'border-color'],
