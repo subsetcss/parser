@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/subsetcss/parser/compare/v0.0.8...v0.0.9) (2019-10-25)
+
+### Features
+
+- subset types and add mapSubset function ([1220bda](https://github.com/subsetcss/parser/commit/1220bda))
+
 ### [0.0.8](https://github.com/subsetcss/parser/compare/v0.0.7...v0.0.8) (2019-10-05)
 
 ### Bug Fixes
