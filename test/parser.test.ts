@@ -23,7 +23,7 @@ describe('parser', () => {
     let css = `
       @media print (max-width: 400px) {
         .nav {
-          font-size:
+          font-size
         }
       }
 
@@ -54,6 +54,25 @@ describe('parser', () => {
     );
 
     expect(result.config).toEqual(['1em', '0.5rem']);
+  });
+
+  it('returns declarations for properties that had longhand versions with multiple values', async () => {
+    let css = `
+      .nav {
+        margin: 1em 0.5em 1px
+      }
+    `;
+    let result = await parser(
+      {
+        subsets: {
+          margin: ['1em', '0.5em'],
+        },
+      },
+      css,
+      2
+    );
+
+    expect(result.config).toEqual(['1em']);
   });
 
   it('returns declarations for properties that had shorthand versions', async () => {

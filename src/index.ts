@@ -62,7 +62,10 @@ export async function parser(
                   : undefined;
 
                 if (altConfig) {
-                  config = [...config, ...altConfig];
+                  config = [
+                    ...mapSubset(config, decl.prop, decl.value),
+                    ...mapSubset(altConfig, decl.prop, decl.value),
+                  ];
                 }
               });
             } else {
@@ -73,7 +76,10 @@ export async function parser(
                   : undefined;
 
               if (shorthandConfig) {
-                config = [...config, ...shorthandConfig];
+                config = [
+                  ...mapSubset(config, decl.prop, decl.value),
+                  ...mapSubset(shorthandConfig, decl.prop, decl.value),
+                ];
               }
             }
           }
@@ -160,8 +166,12 @@ export function getSubsetConfig(
   return subsetConfig;
 }
 
+export function mapSubset(subset: SubsetValue, prop: string, value: string) {
+  return typeof subset === 'function' ? subset(prop, value) : subset;
+}
+
 export interface ParserResult {
-  config: string[];
+  config: SubsetValue;
   decl?: postcss.Declaration;
 }
 
@@ -171,8 +181,12 @@ export interface SubsetConfig {
   [key: string]: any;
 }
 
+export type SubsetFunc = (key: string, val: string | null) => string[];
+
+export type SubsetValue = string[] | SubsetFunc;
+
 export interface Subsets {
-  [key: string]: string[];
+  [key: string]: SubsetValue;
 }
 
 export interface AtMediaConfig {
