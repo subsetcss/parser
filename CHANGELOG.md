@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/subsetcss/parser/compare/v0.0.9...v0.1.0) (2021-12-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop postcss < 8
+
+### Features
+
+* update to postcss 8, remove tsdx ([db0b099](https://github.com/subsetcss/parser/commit/db0b099e71dc7b5ed735a55c3dda468e611eaafb))
+
 ### [0.0.9](https://github.com/subsetcss/parser/compare/v0.0.8...v0.0.9) (2019-10-25)
 
 ### Features
