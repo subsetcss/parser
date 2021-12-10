@@ -1,6 +1,6 @@
 {
   "name": "@subsetcss/parser",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Parse CSS and return matching config based on line number",
   "main": "build/src/index.js",
   "typings": "build/src/index.d.ts",
