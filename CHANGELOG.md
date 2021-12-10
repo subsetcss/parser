@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/subsetcss/parser/compare/v0.1.1...v0.1.2) (2021-12-10)
+
+
+### Features
+
+* export shorthand mapand find method ([298b4ff](https://github.com/subsetcss/parser/commit/298b4ffaac782b9b9825adbae421bb7c23794d16))
+
 ### [0.1.1](https://github.com/subsetcss/parser/compare/v0.1.0...v0.1.1) (2021-12-10)
 
 
