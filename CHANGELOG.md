@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/subsetcss/parser/compare/v0.1.0...v0.1.1) (2021-12-10)
+
+
+### Bug Fixes
+
+* build files ([1fdfb8c](https://github.com/subsetcss/parser/commit/1fdfb8cd74928231c4242437ac1429124ed3b31b))
+
 ## [0.1.0](https://github.com/subsetcss/parser/compare/v0.0.9...v0.1.0) (2021-12-10)
 
 
