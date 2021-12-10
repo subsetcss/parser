@@ -31,7 +31,6 @@ describe('parser', () => {
         font-size: 1em;
       }
     `;
-    debugger;
     const result = await parser(testConfig, css, 3);
 
     expect(result.config).toEqual(['0.5em', '1em']);

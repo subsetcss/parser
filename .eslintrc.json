@@ -5,10 +5,10 @@
     "node": true
   },
   "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": "tsconfig.json",
-    "sourceType": "module"
-  },
+  // "parserOptions": {
+  //   "project": "tsconfig.json",
+  //   "sourceType": "module"
+  // },
   "plugins": ["@typescript-eslint", "jest"],
   "extends": [
     "eslint:recommended",
@@ -17,5 +17,6 @@
     "plugin:jest/recommended",
     "prettier"
   ],
-  "rules": {}
+  "rules": {},
+  "ignorePatterns": "dist/**"
 }
