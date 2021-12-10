@@ -6,7 +6,7 @@
   "module": "dist/subsetcss-parser.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "build"
   ],
   "repository": {
     "url": "https://github.com/subsetcss/parser"
