@@ -2,14 +2,14 @@ import type * as postcss from 'postcss';
 import * as valueParser from 'postcss-value-parser';
 import createSafeParser from './safe-parse';
 
-const shorthandMap: ShorthandMap = {
+export const shorthandMap: ShorthandMap = {
   border: ['border-width', 'border-style', 'border-color'],
   margin: ['margin-top', 'margin-right', 'margin-bottom', 'margin-left'],
   padding: ['padding-top', 'padding-right', 'padding-bottom', 'padding-left'],
   background: [],
 };
 const shorthandKeys = Object.keys(shorthandMap);
-const findShorthand = (prop: string) => {
+export const findShorthand = (prop: string) => {
   return shorthandKeys.find(key => {
     const longHands = shorthandMap[key];
     return longHands && longHands.includes(prop);
