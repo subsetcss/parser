@@ -1,6 +1,6 @@
-import postcss from 'postcss';
-import valueParser from 'postcss-value-parser';
-import safeParser from './safe-parse';
+import type * as postcss from 'postcss';
+import * as valueParser from 'postcss-value-parser';
+import createSafeParser from './safe-parse';
 
 const shorthandMap: ShorthandMap = {
   border: ['border-width', 'border-style', 'border-color'],
@@ -11,7 +11,7 @@ const shorthandMap: ShorthandMap = {
 const shorthandKeys = Object.keys(shorthandMap);
 const findShorthand = (prop: string) => {
   return shorthandKeys.find(key => {
-    let longHands = shorthandMap[key];
+    const longHands = shorthandMap[key];
     return longHands && longHands.includes(prop);
   });
 };
@@ -21,9 +21,9 @@ export async function parser(
   css: string,
   lineNumber: number
 ): Promise<ParserResult> {
-  let parsed: postcss.Root = safeParser(css);
+  const parsed: postcss.Root = createSafeParser(css);
 
-  let result: ParserResult = await new Promise(resolve => {
+  const result: ParserResult = await new Promise(resolve => {
     let found = false;
 
     parsed.walkRules((node: postcss.Rule) => {
@@ -31,8 +31,8 @@ export async function parser(
         return;
       }
 
-      let startLine = node.source.start && node.source.start.line;
-      let endLine = node.source.end && node.source.end.line;
+      const startLine = node.source.start && node.source.start.line;
+      const endLine = node.source.end && node.source.end.line;
 
       if (!startLine || !endLine) {
         return;
@@ -48,16 +48,16 @@ export async function parser(
             return;
           }
 
-          let rootConfig = getSubsetConfig(subsetConfig, decl);
+          const rootConfig = getSubsetConfig(subsetConfig, decl);
           let config = rootConfig ? rootConfig.subsets[decl.prop] : [];
 
           if (!config || !config.length) {
             config = config || [];
-            let alternates = shorthandMap[decl.prop];
+            const alternates = shorthandMap[decl.prop];
 
             if (alternates) {
               alternates.forEach(alt => {
-                let altConfig = rootConfig
+                const altConfig = rootConfig
                   ? rootConfig.subsets[alt]
                   : undefined;
 
@@ -69,8 +69,8 @@ export async function parser(
                 }
               });
             } else {
-              let shorthand = findShorthand(decl.prop);
-              let shorthandConfig =
+              const shorthand = findShorthand(decl.prop);
+              const shorthandConfig =
                 rootConfig && shorthand
                   ? rootConfig.subsets[shorthand]
                   : undefined;
@@ -109,26 +109,31 @@ export function getSubsetConfig(
   subsetConfig: SubsetConfig,
   decl: postcss.Declaration
 ) {
-  let grandParent = decl.parent.parent;
+  const grandParent = decl.parent && decl.parent.parent;
   if (!grandParent || grandParent.type !== 'atrule') {
     return subsetConfig;
   }
-  let inAtRule = grandParent && grandParent.type === 'atrule';
+  let rootConfig = subsetConfig;
 
-  let rootConfig =
-    grandParent && inAtRule
-      ? subsetConfig[`@${grandParent.name}`]
-      : subsetConfig;
+  if (grandParent && isAtRule(grandParent)) {
+    rootConfig = subsetConfig[`@${grandParent.name}`];
+  }
 
   if (!Array.isArray(rootConfig)) {
     return subsetConfig;
   }
 
-  let { nodes } = valueParser(grandParent.params);
+  if (!isAtRule(grandParent)) {
+    throw new Error('Invalid');
+  }
+
+  const { nodes } = valueParser(grandParent.params);
 
   if (nodes.length) {
-    let typeNode = nodes.find((node: ValueParserNode) => node.type === 'word');
-    let type = typeNode && typeNode.value;
+    const typeNode = nodes.find(
+      (node: ValueParserNode) => node.type === 'word'
+    );
+    const type = typeNode && typeNode.value;
     let filteredConfigs: AtMediaConfig[] = rootConfig;
 
     if (type) {
@@ -137,8 +142,10 @@ export function getSubsetConfig(
       );
     }
 
-    let words: string[] = [];
-    let func = nodes.find((node: ValueParserNode) => node.type === 'function');
+    const words: string[] = [];
+    const func = nodes.find(
+      (node: ValueParserNode) => node.type === 'function'
+    );
 
     if (!func) {
       return filteredConfigs.length ? filteredConfigs[0] : subsetConfig;
@@ -151,9 +158,9 @@ export function getSubsetConfig(
     });
 
     if (words.length === 2) {
-      let [prop, value] = words;
-      let config = filteredConfigs.find(conf => {
-        let param = conf.params && conf.params[prop];
+      const [prop, value] = words;
+      const config = filteredConfigs.find(conf => {
+        const param = conf.params && conf.params[prop];
         return param && param.includes(value);
       });
 
@@ -204,4 +211,8 @@ interface ValueParserNode {
 
 interface ShorthandMap {
   [type: string]: string[];
+}
+
+function isAtRule(rule: any): rule is postcss.AtRule {
+  return rule && rule.type === 'atrule';
 }

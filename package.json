@@ -21,18 +21,18 @@
     "css"
   ],
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test",
+    "start": "node build/src/main.js",
+    "clean": "rimraf coverage build tmp",
+    "prebuild": "npm run lint",
+    "build": "tsc -p tsconfig.release.json",
+    "build:watch": "tsc -w -p tsconfig.release.json",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "prerelease": "yarn build",
     "release": "standard-version"
   },
   "peerDependencies": {},
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
-  },
   "prettier": {
     "printWidth": 80,
     "semi": true,
@@ -40,17 +40,27 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.17",
-    "husky": "^3.0.3",
-    "prettier": "^1.18.2",
-    "pretty-quick": "^1.11.1",
-    "standard-version": "^8.0.1",
-    "tsdx": "^0.7.2",
-    "tslib": "^1.10.0",
-    "typescript": "^3.5.3"
+    "@types/jest": "~27.0.2",
+    "@types/node": "~16.11.6",
+    "@typescript-eslint/eslint-plugin": "~5.3.0",
+    "@typescript-eslint/parser": "~5.3.0",
+    "eslint": "~8.1.0",
+    "eslint-config-prettier": "~8.3.0",
+    "eslint-plugin-jest": "~25.2.2",
+    "jest": "~27.3.1",
+    "prettier": "~2.4.1",
+    "rimraf": "~3.0.2",
+    "ts-jest": "~27.0.7",
+    "tsutils": "~3.21.0",
+    "typescript": "~4.4.4",
+    "standard-version": "^9.3.2"
   },
   "dependencies": {
-    "postcss": "^8.2.10",
-    "postcss-value-parser": "^4.0.2"
+    "postcss": "^8.4.4",
+    "postcss-value-parser": "^4.2.0"
+  },
+  "volta": {
+    "node": "16.13.1",
+    "yarn": "1.22.17"
   }
 }

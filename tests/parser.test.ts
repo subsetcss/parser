@@ -3,7 +3,7 @@ import testConfig from './fixtures/config';
 
 describe('parser', () => {
   it('returns declarations in root subset', async () => {
-    let css = `
+    const css = `
       @media (max-width: 400px) {
         .nav {
           font-size: 1em;
@@ -14,16 +14,16 @@ describe('parser', () => {
         font-size: 
       }
     `;
-    let result = await parser(testConfig, css, 8);
+    const result = await parser(testConfig, css, 8);
 
     expect(result.config).toEqual(['0.25em', '0.5em', '0.75em', '1em']);
   });
 
   it('returns declarations in media subset', async () => {
-    let css = `
+    const css = `
       @media print (max-width: 400px) {
         .nav {
-          font-size
+          font-size:
         }
       }
 
@@ -31,18 +31,19 @@ describe('parser', () => {
         font-size: 1em;
       }
     `;
-    let result = await parser(testConfig, css, 3);
+    debugger;
+    const result = await parser(testConfig, css, 3);
 
     expect(result.config).toEqual(['0.5em', '1em']);
   });
 
   it('returns declarations for properties that had longhand versions', async () => {
-    let css = `
+    const css = `
       .nav {
         margin: 
       }
     `;
-    let result = await parser(
+    const result = await parser(
       {
         subsets: {
           'margin-right': ['1em'],
@@ -57,12 +58,12 @@ describe('parser', () => {
   });
 
   it('returns declarations for properties that had longhand versions with multiple values', async () => {
-    let css = `
+    const css = `
       .nav {
         margin: 1em 0.5em 1px
       }
     `;
-    let result = await parser(
+    const result = await parser(
       {
         subsets: {
           margin: ['1em', '0.5em'],
@@ -72,16 +73,16 @@ describe('parser', () => {
       2
     );
 
-    expect(result.config).toEqual(['1em']);
+    expect(result.config).toEqual(['1em', '0.5em']);
   });
 
   it('returns declarations for properties that had shorthand versions', async () => {
-    let css = `
+    const css = `
       .nav {
         margin-right: 
       }
     `;
-    let result = await parser(
+    const result = await parser(
       {
         subsets: {
           margin: ['1em'],

@@ -1,59 +1,62 @@
-import tokenizer from 'postcss/lib/tokenize';
+import * as tokenizer from 'postcss/lib/tokenize';
 import Comment from 'postcss/lib/comment';
-import Parser from 'postcss/lib/parser';
-import { AtRule, Input, Root } from 'postcss';
+import * as Parser from 'postcss/lib/parser';
+// import { AtRule, Input, Root } from 'postcss';
 
-// Mostly copied from https://github.com/postcss/postcss-safe-parser
+
+// Mostly copied from https://github.com/postcss/postcss-safe-parser/blob/fe517597de0056d57897b541fe771b2c84b94bd4/lib/safe-parser.js
 // with TS added on after
 export default class SafeParser extends Parser {
-  spaces: string | null = null;
-  tokenizer!: Tokenizer;
-  current!: Root;
-
-  constructor(input: Input) {
+  constructor(input) {
     super(input);
   }
 
   createTokenizer() {
-    this.tokenizer = tokenizer(this.input, { ignoreErrors: true });
+    this.tokenizer = tokenizer(this.input, { ignoreErrors: true })
   }
 
-  comment(token: string[]) {
-    let node = new Comment();
-    this.init(node, token[2], token[3]);
-    node.source.end = { line: token[4], column: token[5] };
+  comment(token) {
+    const node = new Comment()
+    this.init(node, token[2])
+    const pos =
+      this.input.fromOffset(token[3]) ||
+      this.input.fromOffset(this.input.css.length - 1)
+    node.source.end = {
+      offset: token[3],
+      line: pos.line,
+      column: pos.col
+    }
 
-    let text = token[1].slice(2);
-    if (text.slice(-2) === '*/') text = text.slice(0, -2);
+    let text = token[1].slice(2)
+    if (text.slice(-2) === '*/') text = text.slice(0, -2)
 
     if (/^\s*$/.test(text)) {
-      node.text = '';
-      node.raws.left = text;
-      node.raws.right = '';
+      node.text = ''
+      node.raws.left = text
+      node.raws.right = ''
     } else {
-      let match = text.match(/^(\s*)([^]*[^\s])(\s*)$/);
-      if (match) {
-        node.text = match[2];
-        node.raws.left = match[1];
-        node.raws.right = match[3];
-      }
+      const match = text.match(/^(\s*)([^]*\S)(\s*)$/)
+      node.text = match[2]
+      node.raws.left = match[1]
+      node.raws.right = match[3]
     }
   }
 
-  decl(tokens: string[]) {
-    if (tokens.length > 1) {
-      super.decl(tokens);
+  decl(tokens) {
+    if (tokens.length > 1 && tokens.some(i => i[0] === 'word')) {
+      super.decl(tokens)
     }
   }
+
 
   other(start: string) {
     let end = false;
     let type = null;
     let colon = false;
     let bracket: string | null = null;
-    let brackets = [];
+    const brackets = [];
 
-    let tokens = [];
+    const tokens = [];
     let token = start;
     while (token) {
       type = token[0];
@@ -89,7 +92,7 @@ export default class SafeParser extends Parser {
     }
 
     if (this.tokenizer!.endOfFile()) end = true;
-    if (brackets.length > 0) this.unclosedBracket(bracket);
+    if (brackets.length > 0) this.unclosedBracket();
 
     if (end && colon) {
       while (tokens.length) {
@@ -103,57 +106,67 @@ export default class SafeParser extends Parser {
     }
   }
 
-  unclosedBracket(_s: string | null) {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  unclosedBracket() {}
 
-  unknownWord(tokens: string[]) {
-    this.spaces += tokens.map(i => i[1]).join('');
+  unknownWord(tokens) {
+    this.spaces += tokens.map(i => i[1]).join('')
   }
 
   unexpectedClose() {
-    this.current.raws.after += '}';
+    this.current.raws.after += '}'
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   doubleColon() {}
 
-  unnamedAtrule(node: AtRule) {
-    node.name = '';
+  unnamedAtrule(node) {
+    node.name = ''
   }
 
-  precheckMissedSemicolon(tokens: string[]) {
-    let colon = this.colon(tokens);
-    if (colon === false) return;
+  precheckMissedSemicolon(tokens) {
+    const colon = this.colon(tokens)
+    if (colon === false) return
 
-    let split;
-    for (split = colon - 1; split >= 0; split--) {
-      if (tokens[split][0] === 'word') break;
+    let nextStart, prevEnd
+    for (nextStart = colon - 1; nextStart >= 0; nextStart--) {
+      if (tokens[nextStart][0] === 'word') break
     }
-    for (split -= 1; split >= 0; split--) {
-      if (tokens[split][0] !== 'space') {
-        split += 1;
-        break;
+    if (nextStart === 0) return
+
+    for (prevEnd = nextStart - 1; prevEnd >= 0; prevEnd--) {
+      if (tokens[prevEnd][0] !== 'space') {
+        prevEnd += 1
+        break
       }
     }
-    let other = tokens.splice(split, tokens.length - split);
-    this.decl(other);
+
+    const other = tokens.slice(nextStart)
+    const spaces = tokens.slice(prevEnd, nextStart)
+    tokens.splice(prevEnd, tokens.length - prevEnd)
+    this.spaces = spaces.map(i => i[1]).join('')
+
+    this.decl(other)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   checkMissedSemicolon() {}
 
   endFile() {
     if (this.current.nodes && this.current.nodes.length) {
-      this.current.raws.semicolon = this.semicolon;
+      this.current.raws.semicolon = this.semicolon
     }
-    this.current.raws.after = (this.current.raws.after || '') + this.spaces;
+    this.current.raws.after = (this.current.raws.after || '') + this.spaces
 
-    while (this.current.parent as unknown) {
-      this.current = (this.current.parent as unknown) as Root;
-      this.current.raws.after = '';
+    while (this.current.parent) {
+      this.current = this.current.parent
+      this.current.raws.after = ''
     }
   }
 }
 
-interface Tokenizer {
-  endOfFile: () => boolean;
-  nextToken: (str?: string) => string;
-  back: (item?: string) => {};
-}
+// interface Tokenizer {
+//   endOfFile: () => boolean;
+//   nextToken: (str?: string) => string;
+//   back: (item?: string) => {};
+// }
